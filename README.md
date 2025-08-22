@@ -1,4 +1,4 @@
-# CanvasFlow 🧠
+# CanvasFlow
 
 A real-time collaborative whiteboard app built from scratch with a modern tech stack. Features multi-user drawing via WebSocket, monorepo architecture with Turborepo, and a sleek UI — all without using the Canvas API.
 
