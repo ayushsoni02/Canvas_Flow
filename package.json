@@ -1,5 +1,5 @@
 {
-  "name": "Excalidraw",
+  "name": "Canvas_Flow",
   "private": true,
   "scripts": {
     "build": "turbo run build",

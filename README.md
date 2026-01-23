@@ -1,74 +1,227 @@
-# CanvasFlow
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-15.2.4-black?style=for-the-badge&logo=next.js" alt="Next.js" />
+  <img src="https://img.shields.io/badge/React-19.0.0-61DAFB?style=for-the-badge&logo=react" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-5.7.3-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/WebSocket-Realtime-010101?style=for-the-badge&logo=socket.io" alt="WebSocket" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=for-the-badge&logo=postgresql" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Turborepo-Monorepo-EF4444?style=for-the-badge&logo=turborepo" alt="Turborepo" />
+</p>
 
-A real-time collaborative whiteboard app built from scratch with a modern tech stack. Features multi-user drawing via WebSocket, monorepo architecture with Turborepo, and a sleek UI — all without using the Canvas API.
+<h1 align="center"> CanvasFlow</h1>
 
-![CanvasFlow Demo](https://img.shields.io/badge/Status-Active-brightgreen)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.7.3-blue)
-![Next.js](https://img.shields.io/badge/Next.js-15.2.4-black)
-![Turborepo](https://img.shields.io/badge/Turborepo-2.4.4-purple)
+<p align="center">
+  <strong>A real-time collaborative whiteboard built from scratch — without the Canvas API.</strong>
+</p>
+
+<p align="center">
+  CanvasFlow is a high-performance collaborative drawing application that enables multiple users to sketch, diagram, and brainstorm together in real-time. Built with a custom rendering engine, WebSocket-based synchronization, and a modern monorepo architecture.
+</p>
+
+---
 
 ## ✨ Features
 
-- **Real-time Collaboration** - Multiple users can draw simultaneously on the same canvas
-- **WebSocket Communication** - Instant updates across all connected users
-- **Multi-tool Drawing** - Support for circles, rectangles, and freehand pencil drawing
-- **Room-based Sessions** - Create and join drawing rooms with unique URLs
-- **User Authentication** - Secure JWT-based authentication system
-- **Modern UI** - Clean, responsive interface built with Tailwind CSS
-- **Monorepo Architecture** - Organized with Turborepo for scalable development
+### 🖊️ Drawing Tools
+- **Circle Tool** — Click and drag to create perfect circles
+- **Rectangle Tool** — Draw rectangles of any dimension
+- **Pencil Tool** — Freehand drawing with smooth line rendering
 
-## 🏗️ Architecture
+### ⚡ Real-Time Collaboration
+- **Instant Sync** — All drawing actions are broadcast to connected users via WebSockets
+- **Room-Based Sessions** — Create private rooms with unique URLs for team collaboration
+- **Persistent Storage** — All drawings are automatically saved to the database
 
-CanvasFlow is built as a monorepo using **Turborepo** with the following structure:
+### 🔐 Authentication & Security
+- **JWT-Based Auth** — Secure token-based authentication system
+- **Protected Rooms** — Only authenticated users can join and draw
+- **User Sessions** — Persistent login with token management
 
-### Apps
-- **`excelidraw-frontend`** - Next.js 15 frontend with React 19
-- **`http-backend`** - Express.js REST API for authentication and data
-- **`ws-backend`** - WebSocket server for real-time drawing collaboration
-- **`web`** - Additional web interface (chat rooms)
+### 🏗️ Developer Experience
+- **Monorepo Architecture** — Organized with Turborepo for scalable development
+- **Shared Packages** — Reusable UI components, types, and utilities
+- **Type-Safe** — Full TypeScript coverage across frontend and backend
 
-### Packages
-- **`@repo/ui`** - Shared UI components (Button, Card, Code)
-- **`@repo/db`** - Prisma database client and schema
-- **`@repo/common`** - Shared types and utilities
-- **`@repo/backend-common`** - Backend utilities and configurations
+---
+
+## 🏛️ Architecture
+
+CanvasFlow is built as a **Turborepo monorepo** with clear separation of concerns:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND LAYER                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────────┐     ┌─────────────────────────┐                │
+│  │   excelidraw-frontend   │     │          web            │                │
+│  │   (Next.js 15 + React)  │     │    (Chat Interface)     │                │
+│  │   - Landing Page        │     │    - Room Chat UI       │                │
+│  │   - Auth Pages          │     │                         │                │
+│  │   - Canvas/Drawing      │     │                         │                │
+│  └────────────┬────────────┘     └────────────┬────────────┘                │
+│               │                               │                              │
+│               └───────────────┬───────────────┘                              │
+│                               ▼                                              │
+├───────────────────────────────────────────────────────────────────────────┬─┤
+│                              BACKEND LAYER                                │ │
+├───────────────────────────────────────────────────────────────────────────┤ │
+│  ┌─────────────────────────┐     ┌─────────────────────────┐              │ │
+│  │      http-backend       │     │       ws-backend        │              │ │
+│  │     (Express.js)        │◄───►│      (WebSocket)        │              │ │
+│  │   - REST API            │     │   - Real-time Events    │              │ │
+│  │   - Auth Endpoints      │     │   - Room Management     │              │ │
+│  │   - Room CRUD           │     │   - Shape Broadcasting  │              │ │
+│  └────────────┬────────────┘     └────────────┬────────────┘              │ │
+│               │                               │                            │ │
+│               └───────────────┬───────────────┘                            │ │
+│                               ▼                                            │ │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                             SHARED PACKAGES                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  ┌──────────────────────┐ │
+│  │  @repo/  │  │  @repo/  │  │     @repo/       │  │       @repo/         │ │
+│  │    ui    │  │   db     │  │     common       │  │   backend-common     │ │
+│  │          │  │          │  │                  │  │                      │ │
+│  │ Button   │  │ Prisma   │  │ Zod Schemas      │  │ JWT Secret Config    │ │
+│  │ Card     │  │ Client   │  │ Shared Types     │  │ Middleware Utils     │ │
+│  │ Code     │  │ Schema   │  │                  │  │                      │ │
+│  └──────────┘  └────┬─────┘  └──────────────────┘  └──────────────────────┘ │
+│                     │                                                        │
+│                     ▼                                                        │
+│            ┌─────────────────┐                                               │
+│            │   PostgreSQL    │                                               │
+│            │    Database     │                                               │
+│            └─────────────────┘                                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📁 Project Structure
+
+```
+Canvas_Flow/
+├── apps/
+│   ├── excelidraw-frontend/     # Main Next.js drawing application
+│   │   ├── app/                 # App Router pages
+│   │   ├── components/          # React components (Canvas, Auth, etc.)
+│   │   └── draw/                # Custom drawing engine (Game.ts)
+│   │
+│   ├── http-backend/            # Express.js REST API server
+│   │   └── src/
+│   │       ├── index.ts         # API routes (auth, rooms, chats)
+│   │       └── middleware.ts    # JWT authentication middleware
+│   │
+│   ├── ws-backend/              # WebSocket server for real-time sync
+│   │   └── src/
+│   │       └── index.ts         # WebSocket event handlers
+│   │
+│   └── web/                     # Additional chat interface
+│
+├── packages/
+│   ├── ui/                      # Shared UI components
+│   ├── db/                      # Prisma client & database schema
+│   ├── common/                  # Shared Zod schemas & types
+│   ├── backend-common/          # Backend utilities (JWT config)
+│   ├── eslint-config/           # Shared ESLint configuration
+│   └── typescript-config/       # Shared TypeScript configuration
+│
+├── turbo.json                   # Turborepo pipeline configuration
+├── pnpm-workspace.yaml          # pnpm workspace definition
+└── package.json                 # Root package with global scripts
+```
+
+---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **Next.js 15** - React framework with App Router
-- **React 19** - Latest React with concurrent features
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first CSS framework
-- **Lucide React** - Beautiful icon library
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Frontend** | Next.js 15 | React framework with App Router |
+| | React 19 | UI library with concurrent features |
+| | TypeScript | Type-safe development |
+| | Tailwind CSS | Utility-first styling |
+| | Lucide React | Icon library |
+| **Backend** | Express.js | REST API server |
+| | WebSocket (ws) | Real-time bidirectional communication |
+| | JWT | Token-based authentication |
+| **Database** | PostgreSQL | Primary data store |
+| | Prisma | Type-safe ORM |
+| **DevOps** | Turborepo | Monorepo build orchestration |
+| | pnpm | Fast package manager |
+| | ESLint | Code quality & linting |
 
-### Backend
-- **Express.js** - HTTP server for REST API
-- **WebSocket (ws)** - Real-time bidirectional communication
-- **JWT** - JSON Web Tokens for authentication
-- **Prisma** - Type-safe database ORM
-- **PostgreSQL** - Primary database
+---
 
-### Development
-- **Turborepo** - Monorepo build system
-- **pnpm** - Fast, disk space efficient package manager
-- **ESLint** - Code linting and formatting
-- **TypeScript** - Static type checking
+## 🗃️ Database Schema
+
+```prisma
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  photo     String?
+  rooms     Room[]
+  chats     Chat[]
+}
+
+model Room {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  createAt  DateTime @default(now())
+  adminId   String
+  admin     User     @relation(fields: [adminId], references: [id])
+  chats     Chat[]
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  roomId    Int
+  message   String   // Stores shape data as JSON
+  userId    String
+  room      Room     @relation(fields: [roomId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+```
+
+---
+
+## 🌐 API Reference
+
+### HTTP Backend (Port 3001)
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/signup` | Register a new user | ❌ |
+| `POST` | `/signin` | Authenticate & get JWT token | ❌ |
+| `POST` | `/room` | Create a new drawing room | ✅ |
+| `GET` | `/room/:slug` | Get room details by slug | ❌ |
+| `GET` | `/chats/:roomId` | Get all shapes/messages in a room | ❌ |
+
+### WebSocket Backend (Port 8080)
+
+| Event | Direction | Payload | Description |
+|-------|-----------|---------|-------------|
+| `join_room` | Client → Server | `{ roomId: string }` | Join a drawing room |
+| `leave_room` | Client → Server | `{ roomId: string }` | Leave a drawing room |
+| `chat` | Client ↔ Server | `{ message: JSON, roomId: string }` | Broadcast shape data |
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js >= 18
-- pnpm >= 9.0.0
-- PostgreSQL database
+- **Node.js** ≥ 18.0.0
+- **pnpm** ≥ 9.0.0
+- **PostgreSQL** database
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd CanvasFlow
+   git clone https://github.com/your-username/Canvas_Flow.git
+   cd Canvas_Flow
    ```
 
 2. **Install dependencies**
@@ -77,130 +230,111 @@ CanvasFlow is built as a monorepo using **Turborepo** with the following structu
    ```
 
 3. **Set up environment variables**
-   Create `.env` files in the following directories:
-   
-   **Root `.env`:**
+
+   Create `.env` in the root directory:
    ```env
    DATABASE_URL="postgresql://username:password@localhost:5432/canvasflow"
    JWT_SECRET="your-super-secret-jwt-key"
    ```
 
-4. **Set up the database**
+   Create `.env` in `packages/db/`:
+   ```env
+   DATABASE_URL="postgresql://username:password@localhost:5432/canvasflow"
+   ```
+
+4. **Initialize the database**
    ```bash
    cd packages/db
    pnpm prisma generate
    pnpm prisma db push
+   cd ../..
    ```
 
-5. **Start the development servers**
+5. **Start development servers**
    ```bash
-   # Start all services
    pnpm dev
-   
-   # Or start individual services
-   pnpm dev --filter=excelidraw-frontend
-   pnpm dev --filter=http-backend
-   pnpm dev --filter=ws-backend
    ```
 
-### Development Scripts
+   This starts all services concurrently:
+   - **Frontend**: http://localhost:3000
+   - **HTTP API**: http://localhost:3001
+   - **WebSocket**: ws://localhost:8080
+
+---
+
+## 📜 Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start all apps in development mode |
+| `pnpm build` | Build all packages and apps for production |
+| `pnpm lint` | Run ESLint across all packages |
+| `pnpm format` | Format code with Prettier |
+| `pnpm check-types` | Run TypeScript type checking |
+
+### Running Individual Apps
 
 ```bash
-# Build all packages and apps
-pnpm build
-
-# Run linting
-pnpm lint
-
-# Format code
-pnpm format
-
-# Type checking
-pnpm check-types
+pnpm dev --filter=excelidraw-frontend   # Frontend only
+pnpm dev --filter=http-backend          # HTTP API only
+pnpm dev --filter=ws-backend            # WebSocket server only
 ```
 
-## 📁 Project Structure
+---
 
+## 🎨 How the Drawing Engine Works
+
+CanvasFlow uses a **custom rendering engine** instead of relying on the Canvas API abstractions:
+
+1. **Shape Tracking**: All shapes (circles, rectangles, pencil strokes) are stored as typed objects
+2. **Event Handling**: Mouse events (mousedown, mousemove, mouseup) track drawing actions
+3. **Real-time Sync**: On shape completion, data is sent via WebSocket to all room participants
+4. **Canvas Redraw**: The `clearCanvas()` method redraws all shapes from the stored array
+
+```typescript
+type Shape = 
+  | { type: "rect"; x: number; y: number; width: number; height: number }
+  | { type: "circle"; centerX: number; centerY: number; radius: number }
+  | { type: "pencil"; startX: number; startY: number; endX: number; endY: number };
 ```
-CanvasFlow/
-├── apps/
-│   ├── excelidraw-frontend/     # Main drawing app
-│   ├── http-backend/           # REST API server
-│   ├── ws-backend/             # WebSocket server
-│   └── web/                    # Chat interface
-├── packages/
-│   ├── ui/                     # Shared UI components
-│   ├── db/                     # Database schema & client
-│   ├── common/                 # Shared types
-│   └── backend-common/         # Backend utilities
-└── turbo.json                  # Turborepo configuration
-```
 
-## 🎨 Drawing Features
+---
 
-CanvasFlow implements a custom drawing engine without relying on the Canvas API:
-
-- **Circle Tool** - Draw perfect circles with click and drag
-- **Rectangle Tool** - Create rectangles of any size
-- **Pencil Tool** - Freehand drawing with smooth lines
-- **Real-time Sync** - All drawing actions are synchronized across users
-- **Persistent Storage** - Drawings are saved to the database
-
-## 🔐 Authentication
-
-The app uses JWT-based authentication with secure token verification:
-
-- User registration and login
-- Token-based session management
-- Secure WebSocket connections
-- Role-based room access
-
-## 🌐 API Endpoints
-
-### HTTP Backend (Express)
-- `POST /auth/signup` - User registration
-- `POST /auth/signin` - User login
-- `GET /rooms/:id/shapes` - Get existing shapes for a room
-
-### WebSocket Backend
-- `ws://localhost:8080` - Real-time drawing collaboration
-- Message types: `join_room`, `leave_room`, `chat`
-
-## 🚀 Deployment
+## 🚢 Deployment
 
 ### Production Build
-```bash
-# Build all applications
-pnpm build
 
-# Start production servers
+```bash
+pnpm build
 pnpm start
 ```
 
-### Environment Variables
-Ensure all required environment variables are set in production:
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `NODE_ENV=production`
+### Environment Variables (Production)
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `JWT_SECRET` | Secret key for JWT signing |
+| `NODE_ENV` | Set to `production` |
+
+---
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the ISC License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- Built with modern web technologies
-- Inspired by collaborative drawing tools
-- Special thanks to the open-source community
 
 ---
 
-**CanvasFlow** - Where creativity meets collaboration! 🎨✨
+## 📄 License
+
+This project is licensed under the **ISC License**.
+
+---
+
+<p align="center">
+  <strong>CanvasFlow</strong> — Where creativity meets collaboration. 🎨✨
+</p>
