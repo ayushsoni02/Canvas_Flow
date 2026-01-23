@@ -21,11 +21,6 @@
 
 ## ✨ Features
 
-### 🖊️ Drawing Tools
-- **Circle Tool** — Click and drag to create perfect circles
-- **Rectangle Tool** — Draw rectangles of any dimension
-- **Pencil Tool** — Freehand drawing with smooth line rendering
-
 ### ⚡ Real-Time Collaboration
 - **Instant Sync** — All drawing actions are broadcast to connected users via WebSockets
 - **Room-Based Sessions** — Create private rooms with unique URLs for team collaboration
