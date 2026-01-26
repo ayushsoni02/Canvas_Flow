@@ -27,7 +27,8 @@ slug       String           @unique
 createAt   DateTime         @default(now())
 adminId    String
 admin      User             @relation(fields: [adminId],references: [id])
-chats       Chat[]
+chats      Chat[]
+shapes     Shape[]
 }
 
 
@@ -38,4 +39,20 @@ message   String
 userId    String
 room      Room               @relation(fields: [roomId],references: [id])
 user      User               @relation(fields: [userId],references: [id]) 
+}
+
+
+model Shape {
+  id        Int      @id @default(autoincrement())
+  roomId    Int
+  type      String   // "rect", "circle", "pencil", etc.
+  x         Float
+  y         Float
+  width     Float?
+  height    Float?
+  radius    Float?
+  color     String?
+  points    String?  // JSON string for pencil paths
+  createdAt DateTime @default(now())
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }

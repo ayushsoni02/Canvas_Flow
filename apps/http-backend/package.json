@@ -8,18 +8,19 @@
     "start": "node ./dist/index.js",
     "dev": "esr ./src/index.ts && node ./dist/index.js"
   },
-  
   "dependencies": {
+    "@repo/db": "workspace:*",
+    "@types/bcrypt": "^6.0.0",
     "@types/jsonwebtoken": "^9.0.9",
+    "bcrypt": "^6.0.0",
     "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2",
-    "@repo/db":"workspace:*"
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@repo/typescript-config": "workspace:*",
     "@repo/backend-common": "workspace:*",
-    "@repo/common": "workspace:*"
+    "@repo/common": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/express": "^5.0.0"
   },
   "keywords": [],
   "author": "",
