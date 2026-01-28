@@ -109,12 +109,14 @@ app.post('/room', middleware, async (req: Request, res: Response) => {
     const room = await prismaClient.room.create({
       data: {
         slug: parsedData.data.name,
+        title: parsedData.data.title || "Untitled",
         adminId: userId
       }
     })
 
     res.json({
-      roomId: room.id
+      roomId: room.id,
+      slug: room.slug
     })
 
   } catch (e) {
@@ -127,13 +129,25 @@ app.post('/room', middleware, async (req: Request, res: Response) => {
 
 app.get("/chats/:roomId", async (req, res) => {
   try {
+    const roomSlug = req.params.roomId;
+    console.log("Looking up room by slug:", roomSlug);
 
-    const roomId = Number(req.params.roomId);
-    console.log(req.params.roomId);
+    // Lookup the actual room by slug to get the integer ID
+    const room = await prismaClient.room.findFirst({
+      where: { slug: roomSlug }
+    });
+
+    if (!room) {
+      res.status(404).json({
+        message: "Room not found",
+        messages: []
+      });
+      return;
+    }
 
     const messages = await prismaClient.chat.findMany({
       where: {
-        roomId: roomId
+        roomId: room.id
       },
       orderBy: {
         id: "desc"
@@ -165,7 +179,70 @@ app.get("/room/:slug", async (req, res) => {
   res.json({
     room
   })
+})
 
+// Get user's rooms (authenticated)
+app.get("/rooms", middleware, async (req: Request, res: Response) => {
+  try {
+    // @ts-ignore : Fix this
+    const userId = req.userId;
+
+    const rooms = await prismaClient.room.findMany({
+      where: {
+        adminId: userId
+      },
+      orderBy: {
+        createAt: "desc"
+      },
+      take: 20
+    });
+
+    res.json({
+      rooms
+    })
+  } catch (e) {
+    console.log(e);
+    res.json({
+      rooms: []
+    })
+  }
+})
+
+// Get shapes for a room by slug
+app.get("/shapes/:roomSlug", async (req, res) => {
+  try {
+    const roomSlug = req.params.roomSlug;
+
+    const room = await prismaClient.room.findFirst({
+      where: { slug: roomSlug }
+    });
+
+    if (!room) {
+      res.status(404).json({
+        message: "Room not found",
+        shapes: []
+      });
+      return;
+    }
+
+    const shapes = await prismaClient.shape.findMany({
+      where: {
+        roomId: room.id
+      },
+      orderBy: {
+        createdAt: "asc"
+      }
+    });
+
+    res.json({
+      shapes
+    })
+  } catch (e) {
+    console.log(e);
+    res.json({
+      shapes: []
+    })
+  }
 })
 
 app.listen(3001);
