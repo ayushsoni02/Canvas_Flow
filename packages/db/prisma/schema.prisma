@@ -24,6 +24,7 @@ chats          Chat[]
 model Room {
 id         Int              @id  @default(autoincrement())
 slug       String           @unique
+title      String           @default("Untitled")
 createAt   DateTime         @default(now())
 adminId    String
 admin      User             @relation(fields: [adminId],references: [id])
