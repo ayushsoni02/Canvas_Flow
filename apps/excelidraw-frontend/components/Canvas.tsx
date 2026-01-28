@@ -1,72 +1,94 @@
+"use client";
+
 import { initDraw } from "@/draw";
 import { useEffect, useRef, useState } from "react";
-import { IconButton } from "./IconButton";
-import { Circle, Pencil, RectangleHorizontalIcon } from "lucide-react";
 import { Game } from "@/draw/Game";
+import { CanvasHeader } from "./CanvasHeader";
+import { ToolDock, Tool } from "./ToolDock";
 
-export type Tool = "circle" | "rect" | "pencil";
-
-export function Canvas({
-    roomId,
-    socket
-}: {
-    socket: WebSocket;
-    roomId: string;
-}) {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [game, setGame] = useState<Game>();
-    const [selectedTool, setSelectedTool] = useState<Tool>("circle")
-
-    useEffect(() => {
-        game?.setTool(selectedTool);
-    }, [selectedTool, game]);
-
-    useEffect(() => {
-
-        if (canvasRef.current) {
-            const g = new Game(canvasRef.current, roomId, socket);
-            setGame(g);
-
-            return () => {
-                g.destroy();
-            }
-        }
-
-
-    }, [canvasRef]);
-
-    return <div style={{
-        height: "100vh",
-        overflow: "hidden"
-    }}>
-        <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight}></canvas>
-        <Topbar setSelectedTool={setSelectedTool} selectedTool={selectedTool} />
-    </div>
+interface RoomUser {
+  odId: string;
+  name?: string;
 }
 
-function Topbar({selectedTool, setSelectedTool}: {
-    selectedTool: Tool,
-    setSelectedTool: (s: Tool) => void
+interface RoomData {
+  id: number;
+  slug: string;
+  title: string;
+}
+
+export function Canvas({
+  roomId,
+  socket,
+  roomData,
+}: {
+  socket: WebSocket;
+  roomId: string;
+  roomData?: RoomData;
 }) {
-    return <div style={{
-            position: "fixed",
-            top: 10,
-            left: 10
-        }}>
-            <div className="flex gap-t">
-                <IconButton 
-                    onClick={() => {
-                        setSelectedTool("pencil")
-                    }}
-                    activated={selectedTool === "pencil"}
-                    icon={<Pencil />}
-                />
-                <IconButton onClick={() => {
-                    setSelectedTool("rect")
-                }} activated={selectedTool === "rect"} icon={<RectangleHorizontalIcon />} ></IconButton>
-                <IconButton onClick={() => {
-                    setSelectedTool("circle")
-                }} activated={selectedTool === "circle"} icon={<Circle />}></IconButton>
-            </div>
-        </div>
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [game, setGame] = useState<Game>();
+  const [selectedTool, setSelectedTool] = useState<Tool>("pencil");
+  const [users, setUsers] = useState<RoomUser[]>([]);
+
+  useEffect(() => {
+    game?.setTool(selectedTool);
+  }, [selectedTool, game]);
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      const g = new Game(canvasRef.current, roomId, socket);
+      setGame(g);
+
+      return () => {
+        g.destroy();
+      };
+    }
+  }, [canvasRef, roomId, socket]);
+
+  // Listen for presence updates
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "presence" || data.type === "user_joined") {
+          setUsers(data.users || []);
+        } else if (data.type === "user_left") {
+          setUsers((prev) => prev.filter((u) => u.odId !== data.userId));
+        }
+      } catch (e) {
+        // Ignore parse errors
+      }
+    };
+
+    socket.addEventListener("message", handleMessage);
+    return () => socket.removeEventListener("message", handleMessage);
+  }, [socket]);
+
+  return (
+    <div
+      style={{
+        height: "100vh",
+        overflow: "hidden",
+      }}
+    >
+      {/* Canvas Header */}
+      <CanvasHeader
+        roomTitle={roomData?.title || "Untitled Canvas"}
+        roomSlug={roomId}
+        users={users}
+      />
+
+      {/* Canvas */}
+      <canvas
+        ref={canvasRef}
+        width={typeof window !== "undefined" ? window.innerWidth : 1920}
+        height={typeof window !== "undefined" ? window.innerHeight : 1080}
+        style={{ marginTop: "56px" }}
+      />
+
+      {/* Tool Dock */}
+      <ToolDock selectedTool={selectedTool} onToolSelect={setSelectedTool} />
+    </div>
+  );
 }

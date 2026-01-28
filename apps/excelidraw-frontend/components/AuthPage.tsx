@@ -39,7 +39,7 @@ export function AuthPage({ isSignin }: AuthPageProps) {
       if (isSignin && response.data.token) {
         // Store token and redirect to home
         localStorage.setItem("token", response.data.token);
-        router.push("/");
+        router.push("/dashboard");
       } else if (!isSignin && response.data.userId) {
         // Signup successful, redirect to signin
         router.push("/signin");

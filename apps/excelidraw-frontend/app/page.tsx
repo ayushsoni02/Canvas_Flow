@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950 bg-gradient-animated bg-grid-pattern aurora-glow">
+    <main className="relative min-h-screen bg-slate-950 bg-gradient-animated bg-grid-pattern aurora-glow">
       <Navbar />
       <Hero />
       <WhiteboardMockup />
