@@ -148,6 +148,12 @@
     border-color: hsl(263 70% 50%);
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
   }
+
+  /* Grid dot pattern for canvas background */
+  .bg-grid-dots {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
 }
 
 @layer base {

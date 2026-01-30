@@ -71,9 +71,9 @@ export function AuthPage({ isSignin }: AuthPageProps) {
         <div className="glass-card rounded-2xl p-8">
           {/* Logo */}
           <Link href="/" className="flex items-center justify-center gap-2 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
+            {/* <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
               <span className="text-white font-bold text-lg">CF</span>
-            </div>
+            </div> */}
             <span className="text-xl font-semibold text-white">CanvasFlow</span>
           </Link>
 

@@ -11,9 +11,9 @@ export function Footer() {
           {/* Logo & Copyright */}
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center group-hover:shadow-lg group-hover:shadow-violet-500/25 transition-shadow">
+              {/* <div className="w-6 h-6 rounded-md bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center group-hover:shadow-lg group-hover:shadow-violet-500/25 transition-shadow">
                 <span className="text-white font-bold text-xs">CF</span>
-              </div>
+              </div> */}
               <span className="text-sm font-medium text-slate-400 group-hover:text-white transition-colors">
                 CanvasFlow
               </span>

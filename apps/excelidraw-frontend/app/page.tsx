@@ -2,7 +2,6 @@ import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { WhiteboardMockup } from "@/components/WhiteboardMockup";
 import { FeaturesGrid } from "@/components/FeaturesGrid";
-import { TechStack } from "@/components/TechStack";
 import { Footer } from "@/components/Footer";
 
 export default function Home() {
@@ -12,7 +11,6 @@ export default function Home() {
       <Hero />
       <WhiteboardMockup />
       <FeaturesGrid />
-      <TechStack />
       <Footer />
     </main>
   );

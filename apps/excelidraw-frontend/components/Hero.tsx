@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Pencil, Github, Loader2 } from "lucide-react";
