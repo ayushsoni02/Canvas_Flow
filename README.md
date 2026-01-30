@@ -19,12 +19,33 @@
 
 ---
 
+## 📸 Screenshots
+
+<p align="center">
+  <img src="apps/excelidraw-frontend/public/Screenshot 2026-01-30 at 8.42.18 PM.png" alt="CanvasFlow Dashboard" width="100%" />
+</p>
+
+<p align="center">
+  <img src="apps/excelidraw-frontend/public/Screenshot 2026-01-30 at 5.16.26 PM.png" alt="CanvasFlow Canvas" width="100%" />
+</p>
+
+---
+
 ## ✨ Features
 
 ### ⚡ Real-Time Collaboration
 - **Instant Sync** — All drawing actions are broadcast to connected users via WebSockets
 - **Room-Based Sessions** — Create private rooms with unique URLs for team collaboration
+- **Live Cursors** — See other users' cursors in real-time with name labels
 - **Persistent Storage** — All drawings are automatically saved to the database
+
+### 🎨 Advanced Drawing Tools
+- **Pencil Tool** — Freehand drawing with smooth continuous paths
+- **Shape Tools** — Create rectangles and circles with live preview
+- **Text Tool** — Click anywhere to add text annotations
+- **Eraser Tool** — Continuous object erasing with drag support
+- **Selection & Dragging** — Select shapes and move them with real-time sync
+- **Visual Feedback** — Dashed selection box with corner handles
 
 ### 🔐 Authentication & Security
 - **JWT-Based Auth** — Secure token-based authentication system
@@ -281,17 +302,24 @@ pnpm dev --filter=ws-backend            # WebSocket server only
 
 CanvasFlow uses a **custom rendering engine** instead of relying on the Canvas API abstractions:
 
-1. **Shape Tracking**: All shapes (circles, rectangles, pencil strokes) are stored as typed objects
-2. **Event Handling**: Mouse events (mousedown, mousemove, mouseup) track drawing actions
-3. **Real-time Sync**: On shape completion, data is sent via WebSocket to all room participants
-4. **Canvas Redraw**: The `clearCanvas()` method redraws all shapes from the stored array
+1. **Shape Tracking**: All shapes (circles, rectangles, pencil strokes, text) are stored as typed objects
+2. **Hit Testing**: Click detection for selection and erasing using geometric calculations
+3. **Event Handling**: Mouse events (mousedown, mousemove, mouseup) track drawing actions
+4. **Real-time Sync**: On shape completion, updates, or deletion — data is broadcast via WebSocket
+5. **Canvas Redraw**: The `clearCanvas()` method redraws all shapes plus selection indicators
 
 ```typescript
 type Shape = 
-  | { type: "rect"; x: number; y: number; width: number; height: number }
-  | { type: "circle"; centerX: number; centerY: number; radius: number }
-  | { type: "pencil"; startX: number; startY: number; endX: number; endY: number };
+  | { type: "rect"; id: string; x: number; y: number; width: number; height: number }
+  | { type: "circle"; id: string; centerX: number; centerY: number; radius: number }
+  | { type: "pencil"; id: string; points: number[] } // Continuous path coordinates
+  | { type: "text"; id: string; x: number; y: number; content: string; fontSize: number };
 ```
+
+### Selection & Dragging
+- Shapes can be selected with the arrow tool using hit testing
+- Selected shapes display a dashed bounding box with corner handles
+- Drag operations update coordinates in real-time across all connected users
 
 ---
 
