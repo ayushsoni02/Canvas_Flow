@@ -140,11 +140,14 @@ wss.on('connection', function connection(ws, request) {
         const shape = messageData.shape;
 
         if (shape) {
-          // Save shape to Shape table
+          // Save shape to Shape table with client-generated uid
+          const shapeUid = shape.id || null;
+
           if (shape.type === "rect") {
             await prismaClient.shape.create({
               data: {
                 roomId: room.id,
+                uid: shapeUid,
                 type: "rect",
                 x: shape.x,
                 y: shape.y,
@@ -156,6 +159,7 @@ wss.on('connection', function connection(ws, request) {
             await prismaClient.shape.create({
               data: {
                 roomId: room.id,
+                uid: shapeUid,
                 type: "circle",
                 x: shape.centerX,
                 y: shape.centerY,
@@ -166,6 +170,7 @@ wss.on('connection', function connection(ws, request) {
             await prismaClient.shape.create({
               data: {
                 roomId: room.id,
+                uid: shapeUid,
                 type: "pencil",
                 x: shape.startX,
                 y: shape.startY,
@@ -178,9 +183,9 @@ wss.on('connection', function connection(ws, request) {
         console.error("Error parsing shape data:", e);
       }
 
-      // Broadcast to room members
+      // Broadcast to room members EXCEPT the sender
       users.forEach(user => {
-        if (user.rooms.includes(roomSlug)) {
+        if (user.rooms.includes(roomSlug) && user.ws !== ws) {
           user.ws.send(JSON.stringify({
             type: "chat",
             message: message,

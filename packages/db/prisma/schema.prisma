@@ -45,6 +45,7 @@ user      User               @relation(fields: [userId],references: [id])
 
 model Shape {
   id        Int      @id @default(autoincrement())
+  uid       String?  @unique  // Client-generated UUID for deduplication
   roomId    Int
   type      String   // "rect", "circle", "pencil", etc.
   x         Float
