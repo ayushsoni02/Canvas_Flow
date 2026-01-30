@@ -22,11 +22,11 @@
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="dashboard.png" alt="CanvasFlow Dashboard" width="100%" />
+  <img src="apps/excelidraw-frontend/public/dashboard.png" alt="CanvasFlow Dashboard" width="100%" />
 </p>
 
 <p align="center">
-  <img src="colab_room.png" alt="CanvasFlow Canvas" width="100%" />
+  <img src="apps/excelidraw-frontend/public/colab_room.png" alt="CanvasFlow Canvas" width="100%" />
 </p>
 
 ---
