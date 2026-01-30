@@ -22,11 +22,11 @@
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="apps/excelidraw-frontend/public/Screenshot 2026-01-30 at 8.42.18 PM.png" alt="CanvasFlow Dashboard" width="100%" />
+  <img src="dashboard.png" alt="CanvasFlow Dashboard" width="100%" />
 </p>
 
 <p align="center">
-  <img src="apps/excelidraw-frontend/public/Screenshot 2026-01-30 at 5.16.26 PM.png" alt="CanvasFlow Canvas" width="100%" />
+  <img src="colab_room.png" alt="CanvasFlow Canvas" width="100%" />
 </p>
 
 ---
