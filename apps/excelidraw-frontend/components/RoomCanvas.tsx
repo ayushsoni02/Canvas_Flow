@@ -1,7 +1,7 @@
 "use client";
 
 import { WS_URL, HTTP_BACKEND } from "@/config";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Canvas } from "./Canvas";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
@@ -17,8 +17,16 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
   const [roomData, setRoomData] = useState<RoomData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Ref to prevent double-fetch in StrictMode
+  const mountedRef = useRef(false);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
+    // Prevent double-fetch in StrictMode
+    if (mountedRef.current) return;
+    mountedRef.current = true;
+    
     // Get token from localStorage
     const token = localStorage.getItem("token");
 
@@ -48,6 +56,7 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
 
       // Connect to WebSocket
       const ws = new WebSocket(`${WS_URL}?token=${token}`);
+      wsRef.current = ws;
 
       ws.onopen = () => {
         setSocket(ws);
@@ -73,14 +82,16 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
     fetchRoom();
 
     return () => {
-      if (socket) {
-        socket.send(
+      // Use ref for cleanup to avoid stale closure
+      if (wsRef.current) {
+        wsRef.current.send(
           JSON.stringify({
             type: "leave_room",
             roomId,
           })
         );
-        socket.close();
+        wsRef.current.close();
+        wsRef.current = null;
       }
     };
   }, [roomId]);

@@ -4,7 +4,8 @@ import { initDraw } from "@/draw";
 import { useEffect, useRef, useState } from "react";
 import { Game } from "@/draw/Game";
 import { CanvasHeader } from "./CanvasHeader";
-import { ToolDock, Tool } from "./ToolDock";
+import { ToolDock } from "./ToolDock";
+import type { Tool } from "./ToolDock";
 
 interface RoomUser {
   odId: string;
