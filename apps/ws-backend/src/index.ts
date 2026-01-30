@@ -29,7 +29,7 @@ function checkUser(token: string): { userId: string; userName?: string } | null 
     }
 
     return { userId: decoded.userId, userName: (decoded as { userName?: string }).userName };
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -117,6 +117,157 @@ wss.on('connection', function connection(ws, request) {
       });
     }
 
+    // Handle cursor position updates
+    if (parsedData.type === "cursor_update") {
+      const user = users.find(x => x.ws === ws);
+      if (!user) return;
+
+      const roomId = parsedData.roomId;
+
+      // Broadcast cursor position to all other users in the room
+      users.forEach(u => {
+        if (u.rooms.includes(roomId) && u.ws !== ws) {
+          u.ws.send(JSON.stringify({
+            type: "cursor_update",
+            userId: user.userId,
+            userName: user.userName,
+            x: parsedData.x,
+            y: parsedData.y
+          }));
+        }
+      });
+    }
+
+    // Handle drawing status updates
+    if (parsedData.type === "drawing_status") {
+      const user = users.find(x => x.ws === ws);
+      if (!user) return;
+
+      const roomId = parsedData.roomId;
+
+      // Broadcast drawing status to all other users in the room
+      users.forEach(u => {
+        if (u.rooms.includes(roomId) && u.ws !== ws) {
+          u.ws.send(JSON.stringify({
+            type: "drawing_status",
+            userId: user.userId,
+            userName: user.userName,
+            isDrawing: parsedData.isDrawing
+          }));
+        }
+      });
+    }
+
+    // Handle shape updates (dragging, position changes)
+    if (parsedData.type === "shape_update") {
+      const shape = parsedData.shape;
+      const roomSlug = parsedData.roomId;
+
+      const room = await prismaClient.room.findFirst({
+        where: { slug: roomSlug }
+      });
+
+      if (!room) {
+        ws.send(JSON.stringify({
+          type: "error",
+          message: "Room not found"
+        }));
+        return;
+      }
+
+      // Update shape in database
+      if (shape && shape.id) {
+        try {
+          const updateData: Record<string, number | string | null> = {};
+
+          if (shape.type === "rect") {
+            updateData.x = shape.x;
+            updateData.y = shape.y;
+            updateData.width = shape.width;
+            updateData.height = shape.height;
+          } else if (shape.type === "circle") {
+            updateData.x = shape.centerX;
+            updateData.y = shape.centerY;
+            updateData.radius = shape.radius;
+          } else if (shape.type === "pencil") {
+            // For pencil, store first point as x,y and all points in JSON
+            updateData.x = shape.points?.[0] || 0;
+            updateData.y = shape.points?.[1] || 0;
+            updateData.points = JSON.stringify(shape.points || []);
+          } else if (shape.type === "text") {
+            updateData.x = shape.x;
+            updateData.y = shape.y;
+            updateData.points = JSON.stringify({
+              content: shape.content,
+              fontSize: shape.fontSize
+            });
+          }
+
+          await prismaClient.shape.updateMany({
+            where: {
+              uid: shape.id,
+              roomId: room.id
+            },
+            data: updateData
+          });
+        } catch (e) {
+          console.error("Error updating shape:", e);
+        }
+      }
+
+      // Broadcast update to other users in the room
+      users.forEach(u => {
+        if (u.rooms.includes(roomSlug) && u.ws !== ws) {
+          u.ws.send(JSON.stringify({
+            type: "shape_update",
+            shape
+          }));
+        }
+      });
+    }
+
+    // Handle shape deletion
+    if (parsedData.type === "shape_delete") {
+      const shapeId = parsedData.shapeId;
+      const roomSlug = parsedData.roomId;
+
+      const room = await prismaClient.room.findFirst({
+        where: { slug: roomSlug }
+      });
+
+      if (!room) {
+        ws.send(JSON.stringify({
+          type: "error",
+          message: "Room not found"
+        }));
+        return;
+      }
+
+      // Delete shape from database
+      if (shapeId) {
+        try {
+          await prismaClient.shape.deleteMany({
+            where: {
+              uid: shapeId,
+              roomId: room.id
+            }
+          });
+        } catch (e) {
+          console.error("Error deleting shape:", e);
+        }
+      }
+
+      // Broadcast deletion to other users in the room
+      users.forEach(u => {
+        if (u.rooms.includes(roomSlug) && u.ws !== ws) {
+          u.ws.send(JSON.stringify({
+            type: "shape_delete",
+            shapeId
+          }));
+        }
+      });
+    }
+
     if (parsedData.type === "chat") {
       const roomSlug = parsedData.roomId;
       const message = parsedData.message;
@@ -137,6 +288,22 @@ wss.on('connection', function connection(ws, request) {
       // Parse shape data from message
       try {
         const messageData = JSON.parse(message);
+
+        // Handle shape deletion via chat message (legacy support)
+        if (messageData.deleteShape) {
+          const shapeId = messageData.deleteShape;
+          try {
+            await prismaClient.shape.deleteMany({
+              where: {
+                uid: shapeId,
+                roomId: room.id
+              }
+            });
+          } catch (e) {
+            console.error("Error deleting shape:", e);
+          }
+        }
+
         const shape = messageData.shape;
 
         if (shape) {
@@ -167,14 +334,30 @@ wss.on('connection', function connection(ws, request) {
               }
             });
           } else if (shape.type === "pencil") {
+            // Store pencil with points array
             await prismaClient.shape.create({
               data: {
                 roomId: room.id,
                 uid: shapeUid,
                 type: "pencil",
-                x: shape.startX,
-                y: shape.startY,
-                points: JSON.stringify({ endX: shape.endX, endY: shape.endY })
+                x: shape.points?.[0] || 0,
+                y: shape.points?.[1] || 0,
+                points: JSON.stringify(shape.points || [])
+              }
+            });
+          } else if (shape.type === "text") {
+            // Store text shape
+            await prismaClient.shape.create({
+              data: {
+                roomId: room.id,
+                uid: shapeUid,
+                type: "text",
+                x: shape.x,
+                y: shape.y,
+                points: JSON.stringify({
+                  content: shape.content,
+                  fontSize: shape.fontSize
+                })
               }
             });
           }
